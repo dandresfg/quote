@@ -17,7 +17,7 @@ const ColorPicker = ({ children, color, onChange }: ColorPickerProps) => {
 
     return (
         <>
-            <div onClick={onOpen}>
+            <div className="color-menu" onClick={onOpen}>
                 {children}
             </div>
             <Popover
