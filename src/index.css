@@ -26,6 +26,9 @@ body {
 .background {
   background-color: #95959520;
 }
+.pointer:hover {
+  cursor: pointer;
+}
 
 /* Fit cover image */
 .image-full-height {

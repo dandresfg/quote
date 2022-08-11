@@ -1,62 +1,60 @@
-import { useState } from "react"
-import { Box, Button, Grid, IconButton, Paper, TextField, Tooltip } from "@mui/material"
+import { Box, Button, Grid, IconButton, InputProps, TextField, Tooltip } from "@mui/material"
 
 // Icons
 import PaletteIcon from '@mui/icons-material/Palette';
 import ImageIcon from '@mui/icons-material/Image';
-import ClassIcon from '@mui/icons-material/Class';
-import LabelIcon from '@mui/icons-material/Label';
 
-import { INote } from "../../common/types"
+import Container from './container';
 import ColorPicker from "../../common/components/colorpicker";
 
-const defaultState = {
-    title: '',
-    description: '',
-    image: '',
-    color: ''
+import useNoteForm from "../../hooks/useNoteForm";
+
+const TextFieldProps: Partial<InputProps> = {
+    disableUnderline: true,
 }
 
-const DashboardForm = () => {
-    const [state, setState] = useState<INote>(defaultState)
-    const [focused, setFocused] = useState(false)
-
-    const onChangeColor = (hex: string) => {
-        setState(oldState => ({ ...oldState, color: hex }))
-    }
-    const onCleanColor = () => {
-        setState(oldState => ({ ...oldState, color: "" }))
-    }
-    const onFocus = () => setFocused(true);
-
+const DashboardNoteForm = () => {
+    const {
+        state,
+        focused,
+        onFocus,
+        onChangeColor,
+        onCleanColor,
+        onTextChange,
+        onFileChange,
+        onFormSubmit
+    } = useNoteForm();
     return (
-        <Paper sx={{ width: '100%', maxWidth: 550 }}>
-            <Grid item container spacing={2}>
+        <Container state={state} onFileChange={onFileChange}>
+            <Grid component="form" item container spacing={2} onSubmit={onFormSubmit}>
                 <Grid item container>
                     <Box px={2} pt={1}>
                         {focused &&
                             <Grid item xs={12}>
                                 <TextField
-                                    variant="standard"
+                                    required
                                     fullWidth
+                                    name="title"
+                                    variant="standard"
                                     placeholder="Título"
-                                    InputProps={{
-                                        disableUnderline: true,
-                                    }}
+                                    value={state.title}
+                                    InputProps={TextFieldProps}
+                                    onChange={onTextChange}
                                 />
                             </Grid>
                         }
                         <Grid item xs={12}>
                             <TextField
-                                variant="standard"
                                 fullWidth
-                                placeholder={`Agrega una nota color ${state.color}`}
                                 multiline
+                                variant="standard"
+                                name="description"
+                                placeholder={`Agrega una nota`}
                                 minRows={4}
+                                value={state.description}
                                 onFocus={onFocus}
-                                InputProps={{
-                                    disableUnderline: true,
-                                }}
+                                InputProps={TextFieldProps}
+                                onChange={onTextChange}
                             />
                         </Grid>
                     </Box>
@@ -64,40 +62,40 @@ const DashboardForm = () => {
                 {
                     state.color && (
                         <Grid item container xs={3}>
-                            <Box pl={2}>
-                                <Tooltip arrow title="Eliminar el color" placement="bottom">
-                                    <IconButton size="small" sx={{ color: state.color }} onClick={onCleanColor}>
-                                        <LabelIcon color="inherit" />
-                                    </IconButton>
-                                </Tooltip>
-                            </Box>
+                            <Tooltip arrow title="Eliminar color" placement="bottom">
+                                <Box className="pointer" pl={2} sx={{ color: '#989898' }} onClick={onCleanColor}>
+                                    {state.color}
+                                </Box>
+                            </Tooltip>
                         </Grid>
                     )
                 }
                 <Grid item container xs justifyContent="flex-end">
-                    <ColorPicker color={state.color} onChange={onChangeColor}>
-                        <Tooltip arrow title="Elegir un color" placement="bottom">
-                            <IconButton size="small">
-                                <PaletteIcon fontSize="small" />
+                    <Grid item>
+                        <ColorPicker color={state.color} onChange={onChangeColor}>
+                            <Tooltip arrow title="Elegir un color" placement="bottom">
+                                <IconButton sx={state.color ? { color: state.color } : undefined}>
+                                    <PaletteIcon fontSize="small" />
+                                </IconButton>
+                            </Tooltip>
+                        </ColorPicker>
+                    </Grid>
+                    <Grid item>
+                        <Tooltip arrow title="Agregar una imagen" placement="bottom">
+                            <IconButton component="label" htmlFor="notefile">
+                                <ImageIcon fontSize="small" />
                             </IconButton>
                         </Tooltip>
-                    </ColorPicker>
-                    <Tooltip arrow title="Agregar una imagen" placement="bottom">
-                        <IconButton size="small">
-                            <ImageIcon fontSize="small" />
-                        </IconButton>
-                    </Tooltip>
-                    <Button
-                        color="inherit"
-                        variant="text"
-                        size="small"
-                    >
-                        Guardar
-                    </Button>
+                    </Grid>
+                    <Grid item>
+                        <Button type="submit" color="inherit" variant="text">
+                            Guardar
+                        </Button>
+                    </Grid>
                 </Grid>
             </Grid>
-        </Paper>
+        </Container>
     )
 }
 
-export default DashboardForm
+export default DashboardNoteForm
