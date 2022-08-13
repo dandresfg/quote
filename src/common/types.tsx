@@ -7,6 +7,9 @@ export interface INote {
     id: number,
     title: string,
     description: string,
-    image: string,
+    image: {
+        url: string,
+        blob?: File
+    },
     color: string
 }

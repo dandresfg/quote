@@ -25,9 +25,9 @@ const NoteContainer = (props: IImageNote) => {
                 <input type="file" id="notefile" accept="image/*" onChange={props.onFileChange} />
             </Box>
             {
-                props.state.image && (
+                props.state.image.url && (
                     <Box sx={ImageStyle}>
-                        <img src={props.state.image} alt="Note image" width={50} height={50} />
+                        <img src={props.state.image.url} alt="Note image" width={50} height={50} />
                     </Box>
                 )
             }

@@ -6,7 +6,9 @@ const defaultState = {
     id: 0,
     title: '',
     description: '',
-    image: '',
+    image: {
+        url: '',
+    },
     color: ''
 }
 
@@ -31,10 +33,10 @@ const useNoteForm = () => {
     const onFileChange = (evt: ChangeEvent<HTMLInputElement>) => {
         const files = evt.target.files;
         if (!files || (files && !files[0])) {
-            setState({ ...state, image: '' })
+            setState({ ...state, image: { url: '' } })
         } else {
             const file = files[0];
-            setState({ ...state, image: URL.createObjectURL(file) })
+            setState({ ...state, image: { url: URL.createObjectURL(file), blob: file } })
             onFocus();
         }
     }
