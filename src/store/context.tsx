@@ -1,61 +1,71 @@
 import { createContext, useEffect, useState } from "react"
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { addDoc, collection, query, where, getDocs } from "firebase/firestore";
-import { db, storage } from "../auth/firebase/config";
+import { addDoc, collection, getDocs } from "firebase/firestore";
+import { db } from "../auth/firebase/config";
+import { uploadImage } from "./util";
 import { ChildrenProps, INote } from "../common/types"
+import { UserCredential } from "firebase/auth";
 import useAuth from "../auth/hooks/useAuth";
 
 interface INotesContext {
-    notes: INote[],
-    editable?: INote,
-    loading: boolean,
+    notes: INote[]
+    editable?: INote
+    loading: boolean
+    onUpdateNote: (n: INote) => void
     onPushNote: (n: INote) => void
     onSelectNote: (n: INote) => void
 }
 
 export const NotesContext = createContext({} as INotesContext);
 
-const NotexsContextProvider = (props: ChildrenProps) => {
-    const user = useAuth();
+const NotesContextProvider = (props: ChildrenProps) => {
+    const user = useAuth() as UserCredential["user"];
     const [loading, setLoading] = useState(true);
     const [notes, setNotes] = useState<INote[]>([])
     const [editable, setEditableNote] = useState<INote | undefined>();
 
     useEffect(() => {
-        if (user) {
-            const docQuery = query(collection(db, "notes"), where("userID", "==", user.uid));
+        setLoading(true);
+        getDocs(collection(db, "notes"))
+        .then(querySnapshot => {
+            const noteList: INote[] = [];
+            querySnapshot.forEach((doc) => noteList.push(doc.data() as INote))
+            setNotes(noteList)
+        })
+        .catch(console.log)
+        .finally(() => setLoading(false))
+    }, [])
 
-            setLoading(true);
-            getDocs(docQuery)
-            .then(querySnapshot => {
-                const noteList: INote[] = [];
-                querySnapshot.forEach((doc) => noteList.push(doc.data() as INote))
-                setNotes(noteList)
-            })
-            .catch(console.log)
-            .finally(() => setLoading(false))
-        }
-    }, [ user ])
-
-    const onPushNote = async (note: INote) => {
-        if (editable) {
+    const onUpdateNote = async (note: INote) => {
+        try {
+            const editor: typeof note.owner = {
+                name: user.displayName || "Anonymous",
+                email: user.email || "Anonymous@gmail.com",
+                date: Date.now()
+            }
+            note.editors = [...(note.editors || []), editor]
             setNotes(state => state.map(item => item.id === note.id ? note : item));
             setEditableNote(undefined);
-        } else {
-            try {
-                if (note.image.blob) {
-                    const imageRef = ref(storage, `images/${note.id}_${note.image.blob.name}`);
-                    const snapshot = await uploadBytes(imageRef, note.image.blob)
-                    note.image = {
-                        url: await getDownloadURL(snapshot.ref)
-                    };
-                }
-                await addDoc(collection(db, "notes"), { ...note, userID: user?.uid })
-            } catch (error) {
-                console.log(error)
-            } finally {
-                setNotes(state => [...state, note]);
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const onPushNote = async (note: INote) => {
+        try {
+            note.editors = [];
+            note.owner = {
+                name: user.displayName || "Anonymous",
+                email: user.email || "Anonymous@gmail.com",
+                date: Date.now()
             }
+            setNotes(state => [...state, note]);
+            if (note.image.blob) {
+                const url = await uploadImage(`images/${note.id}_${note.image.blob.name}`, note.image.blob)
+                note.image = { url };
+            }
+            await addDoc(collection(db, "notes"), note)
+        } catch (error) {
+            console.log(error)
         }
     }
 
@@ -64,10 +74,10 @@ const NotexsContextProvider = (props: ChildrenProps) => {
     }
 
     return (
-        <NotesContext.Provider value={{ notes, editable, loading, onPushNote, onSelectNote }}>
+        <NotesContext.Provider value={{ notes, editable, loading, onPushNote, onUpdateNote, onSelectNote }}>
             {props.children}
         </NotesContext.Provider>
     )
 }
 
-export default NotexsContextProvider
+export default NotesContextProvider

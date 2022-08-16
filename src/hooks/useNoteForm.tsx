@@ -1,7 +1,9 @@
 import { ChangeEvent, FormEvent, useContext, useState } from "react"
 import { INote } from "../common/types"
 import { NotesContext } from "../store/context";
+import { v4 as uuidv4 } from 'uuid';
 
+export const TITLE_LIMIT = 60;
 const defaultState = {
     id: 0,
     title: '',
@@ -42,8 +44,9 @@ const useNoteForm = () => {
     }
     const onFormSubmit = (evt: FormEvent<HTMLFormElement>) => {
         evt.preventDefault();
-        if (state.title.trim().length) {
-            onPushNote({ ...state, id: Date.now() })
+        const length = state.title.trim().length
+        if (length && length < TITLE_LIMIT) {
+            onPushNote({ ...state, id: uuidv4() })
             setState(defaultState);
         }
     }

@@ -1,4 +1,4 @@
-import { Box, Button, Grid, IconButton, InputProps, TextField, Tooltip } from "@mui/material"
+import { Fade, Grow, Box, Button, Grid, IconButton, InputProps, TextField, Tooltip } from "@mui/material"
 
 // Icons
 import PaletteIcon from '@mui/icons-material/Palette';
@@ -7,7 +7,7 @@ import ImageIcon from '@mui/icons-material/Image';
 import Container from './container';
 import ColorPicker from "../../common/components/colorpicker";
 
-import useNoteForm from "../../hooks/useNoteForm";
+import useNoteForm, { TITLE_LIMIT } from "../../hooks/useNoteForm";
 
 const TextFieldProps: Partial<InputProps> = {
     disableUnderline: true,
@@ -24,40 +24,45 @@ const DashboardNoteForm = () => {
         onFileChange,
         onFormSubmit
     } = useNoteForm();
+    const isTitleError = state.title.length > TITLE_LIMIT;
     return (
         <Container state={state} onFileChange={onFileChange}>
-            <Grid component="form" item container spacing={2} onSubmit={onFormSubmit}>
-                <Grid item container>
-                    <Box px={2} pt={1}>
-                        {focused &&
-                            <Grid item xs={12}>
-                                <TextField
-                                    required
-                                    fullWidth
-                                    name="title"
-                                    variant="standard"
-                                    placeholder="Título"
-                                    value={state.title}
-                                    InputProps={TextFieldProps}
-                                    onChange={onTextChange}
-                                />
-                            </Grid>
-                        }
+            <Grid component="form" item container onSubmit={onFormSubmit}>
+                <Grid component={Box} mx={1} mt={1} item xs={12} container>
+                    <Grow
+                        in={focused}
+                        style={{ transition: 'all .2s ease-in-out', transformOrigin: '0 0 0', height: focused ? 'auto' : 0 }}
+                        timeout={1000}
+                    >
                         <Grid item xs={12}>
                             <TextField
+                                required
                                 fullWidth
-                                multiline
+                                name="title"
                                 variant="standard"
-                                name="description"
-                                placeholder={`Agrega una nota`}
-                                minRows={4}
-                                value={state.description}
-                                onFocus={onFocus}
+                                placeholder="Título"
+                                value={state.title}
+                                error={isTitleError}
+                                helperText={isTitleError && `El título no debe exceder los ${TITLE_LIMIT} caracteres`}
                                 InputProps={TextFieldProps}
                                 onChange={onTextChange}
                             />
                         </Grid>
-                    </Box>
+                    </Grow>
+                    <Grid item xs={12}>
+                        <TextField
+                            fullWidth
+                            multiline
+                            variant="standard"
+                            name="description"
+                            placeholder={`Agrega una nota`}
+                            minRows={4}
+                            value={state.description}
+                            onFocus={onFocus}
+                            InputProps={TextFieldProps}
+                            onChange={onTextChange}
+                        />
+                    </Grid>
                 </Grid>
                 {
                     state.color && (
@@ -88,7 +93,7 @@ const DashboardNoteForm = () => {
                         </Tooltip>
                     </Grid>
                     <Grid item>
-                        <Button type="submit" color="inherit" variant="text">
+                        <Button type="submit" color="inherit" variant="text" disabled={isTitleError}>
                             Guardar
                         </Button>
                     </Grid>

@@ -21,9 +21,7 @@ const ImageStyle = {
 const NoteContainer = (props: IImageNote) => {
     return (
         <Paper sx={{ width: '100%', position: 'relative', maxWidth: 550, border: `0.5px solid ${props.state.color || 'transparent'}` }}>
-            <Box sx={{ position: 'absolute', zIndex: -1, color: 'transparent' }}>
-                <input type="file" id="notefile" accept="image/*" onChange={props.onFileChange} />
-            </Box>
+            <input type="file" id="notefile" accept="image/*" style={{ display: 'none' }} onChange={props.onFileChange} />
             {
                 props.state.image.url && (
                     <Box sx={ImageStyle}>
