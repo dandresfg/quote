@@ -3,10 +3,21 @@ export type ChildrenProps = {
     children: React.ReactNode | JSX.Element
 }
 
+interface IUser {
+    name: string,
+    email: string
+    date: number
+}
+
 export interface INote {
-    id: number,
+    id: string,
     title: string,
     description: string,
-    image: string,
-    color: string
+    image: {
+        url: string,
+        blob?: File
+    },
+    color: string,
+    owner?: IUser,
+    editors?: IUser[]
 }

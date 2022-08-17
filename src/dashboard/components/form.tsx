@@ -1,15 +1,13 @@
-import { Box, Button, Grid, IconButton, InputProps, TextField, Tooltip } from "@mui/material"
-
-// Icons
-import PaletteIcon from '@mui/icons-material/Palette';
-import ImageIcon from '@mui/icons-material/Image';
+import { Grow, Box, Grid, InputProps, TextField } from "@mui/material"
 
 import Container from './container';
-import ColorPicker from "../../common/components/colorpicker";
+import Buttons from './buttons';
 
 import useNoteForm from "../../hooks/useNoteForm";
+import TitleInput from "./title";
+import DescriptionInput from "./description";
 
-const TextFieldProps: Partial<InputProps> = {
+export const TextFieldProps: Partial<InputProps> = {
     disableUnderline: true,
 }
 
@@ -19,80 +17,29 @@ const DashboardNoteForm = () => {
         focused,
         onFocus,
         onChangeColor,
-        onCleanColor,
         onTextChange,
         onFileChange,
+        onFileClean,
         onFormSubmit
     } = useNoteForm();
     return (
-        <Container state={state} onFileChange={onFileChange}>
-            <Grid component="form" item container spacing={2} onSubmit={onFormSubmit}>
-                <Grid item container>
-                    <Box px={2} pt={1}>
-                        {focused &&
-                            <Grid item xs={12}>
-                                <TextField
-                                    required
-                                    fullWidth
-                                    name="title"
-                                    variant="standard"
-                                    placeholder="Título"
-                                    value={state.title}
-                                    InputProps={TextFieldProps}
-                                    onChange={onTextChange}
-                                />
-                            </Grid>
-                        }
+        <Container id="dashboard-input-file" state={state} onFileChange={onFileChange} onFileClean={onFileClean}>
+            <Grid component="form" item container onSubmit={onFormSubmit}>
+                <Grid component={Box} mx={1} mt={1} item xs={12} container>
+                    <Grow
+                        in={focused}
+                        style={{ transition: 'all .2s ease-in-out', transformOrigin: '0 0 0', height: focused ? 'auto' : 0 }}
+                        timeout={1000}
+                    >
                         <Grid item xs={12}>
-                            <TextField
-                                fullWidth
-                                multiline
-                                variant="standard"
-                                name="description"
-                                placeholder={`Agrega una nota`}
-                                minRows={4}
-                                value={state.description}
-                                onFocus={onFocus}
-                                InputProps={TextFieldProps}
-                                onChange={onTextChange}
-                            />
+                            <TitleInput value={state.title} onChange={onTextChange} />
                         </Grid>
-                    </Box>
-                </Grid>
-                {
-                    state.color && (
-                        <Grid item container xs={3}>
-                            <Tooltip arrow title="Eliminar color" placement="bottom">
-                                <Box className="pointer" pl={2} sx={{ color: '#989898' }} onClick={onCleanColor}>
-                                    {state.color}
-                                </Box>
-                            </Tooltip>
-                        </Grid>
-                    )
-                }
-                <Grid item container xs justifyContent="flex-end">
-                    <Grid item>
-                        <ColorPicker color={state.color} onChange={onChangeColor}>
-                            <Tooltip arrow title="Elegir un color" placement="bottom">
-                                <IconButton sx={state.color ? { color: state.color } : undefined}>
-                                    <PaletteIcon fontSize="small" />
-                                </IconButton>
-                            </Tooltip>
-                        </ColorPicker>
-                    </Grid>
-                    <Grid item>
-                        <Tooltip arrow title="Agregar una imagen" placement="bottom">
-                            <IconButton component="label" htmlFor="notefile">
-                                <ImageIcon fontSize="small" />
-                            </IconButton>
-                        </Tooltip>
-                    </Grid>
-                    <Grid item>
-                        <Button type="submit" color="inherit" variant="text">
-                            Guardar
-                        </Button>
+                    </Grow>
+                    <Grid item xs={12}>
+                        <DescriptionInput value={state.description} onFocus={onFocus} onChange={onTextChange} />
                     </Grid>
                 </Grid>
+                <Buttons id="dashboard-input-file" state={state} onChangeColor={onChangeColor} />
             </Grid>
         </Container>
     )

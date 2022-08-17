@@ -36,30 +36,32 @@ const LoginPage = () => {
     }
 
     return (
-        <Grid item container>
+        <Grid item container className="h-100">
             <Grid item container spacing={2} className="area" justifyContent="center" alignItems="center" xs={12} md={6}>
-                <Grid item container spacing={2}>
-                    <Grid item container justifyContent="center">
-                        <img src={ImageLogo} alt="Google Keep Clone" width={300} />
+                <div>
+                    <Grid item container className="h-100">
+                        <Grid item container justifyContent="center">
+                            <img src={ImageLogo} alt="Google Keep Clone" width={300} />
+                        </Grid>
+                        <Grid item container className="area-out" justifyContent="center">
+                            <Typography variant="h2" align="center">
+                                Save Your Notes!
+                            </Typography>
+                        </Grid>
+                        <Grid item container className="area-out" justifyContent="center">
+                            <Button
+                                variant="outlined"
+                                color="inherit"
+                                startIcon={StartIcon}
+                                sx={{ minWidth: 160 }}
+                                disabled={loading}
+                                onClick={onSignIn}
+                            >
+                                Sign In
+                            </Button>
+                        </Grid>
                     </Grid>
-                    <Grid item container className="area-out" justifyContent="center">
-                        <Typography variant="h2">
-                            Save Your Notes!
-                        </Typography>
-                    </Grid>
-                    <Grid item container className="area-out" justifyContent="center">
-                        <Button
-                            variant="outlined"
-                            color="inherit"
-                            startIcon={StartIcon}
-                            sx={{ minWidth: 160 }}
-                            disabled={loading}
-                            onClick={onSignIn}
-                        >
-                            Sign In
-                        </Button>
-                    </Grid>
-                </Grid>
+                </div>
                 <ul className="circles">
                     <li></li><li></li><li></li>
                     <li></li><li></li><li></li>

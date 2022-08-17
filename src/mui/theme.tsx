@@ -12,6 +12,15 @@ const theme = createTheme({
             main: '#19857b',
         },
     },
+    components: {
+        MuiTypography: {
+            styleOverrides: {
+                root: {
+                    wordWrap: "break-word"
+                },
+            },
+        },
+    }
 });
 
 const Provider = (props: ChildrenProps) => {
