@@ -10,7 +10,7 @@ interface IUser {
 }
 
 export interface INote {
-    id: number,
+    id: string,
     title: string,
     description: string,
     image: {

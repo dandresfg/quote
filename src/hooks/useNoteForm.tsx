@@ -1,11 +1,10 @@
 import { ChangeEvent, FormEvent, useContext, useState } from "react"
 import { INote } from "../common/types"
 import { NotesContext } from "../store/context";
-import { v4 as uuidv4 } from 'uuid';
 
-export const TITLE_LIMIT = 60;
+export const TITLE_LIMIT = 50;
 const defaultState = {
-    id: 0,
+    id: "",
     title: '',
     description: '',
     image: {
@@ -14,29 +13,29 @@ const defaultState = {
     color: ''
 }
 
-const useNoteForm = () => {
-    const { onPushNote } = useContext(NotesContext)
+const useNoteForm = (isUpdate?: boolean) => {
+    const { onPushNote, onUpdateNote } = useContext(NotesContext)
     const [state, setState] = useState<INote>(defaultState)
     const [focused, setFocused] = useState(false)
 
     const onFocus = () => setFocused(true);
-
+    const onStateChange = (note: INote = defaultState) => {
+        setState(note);
+    }
     const onChangeColor = (hex: string) => {
         setState(oldState => ({ ...oldState, color: hex }))
         onFocus();
-    }
-    const onCleanColor = () => {
-        setState(oldState => ({ ...oldState, color: '' }))
     }
     const onTextChange = (evt: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = evt.target;
         setState(oldState => ({ ...oldState, [name]: value }));
     }
+    const onFileClean = () => {
+        setState({ ...state, image: { url: '' } })
+    }
     const onFileChange = (evt: ChangeEvent<HTMLInputElement>) => {
         const files = evt.target.files;
-        if (!files || (files && !files[0])) {
-            setState({ ...state, image: { url: '' } })
-        } else {
+        if (files && files.length) {
             const file = files[0];
             setState({ ...state, image: { url: URL.createObjectURL(file), blob: file } })
             onFocus();
@@ -45,20 +44,27 @@ const useNoteForm = () => {
     const onFormSubmit = (evt: FormEvent<HTMLFormElement>) => {
         evt.preventDefault();
         const length = state.title.trim().length
-        if (length && length < TITLE_LIMIT) {
-            onPushNote({ ...state, id: uuidv4() })
-            setState(defaultState);
+        if (!(length && length < TITLE_LIMIT)) {
+            return;
         }
+
+        if (isUpdate){
+            onUpdateNote(state);
+        } else {
+            onPushNote(state)
+        }
+        setState(defaultState);
     }
 
     return {
         state,
         focused,
         onFocus,
+        onStateChange,
         onChangeColor,
-        onCleanColor,
         onTextChange,
         onFileChange,
+        onFileClean,
         onFormSubmit
     }
 }

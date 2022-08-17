@@ -8,6 +8,7 @@ export type UserContext = {
     user: UserAuth,
     loading: boolean,
     onChangeUser: (user: UserCredential["user"]) => void
+    onDestroySession: () => void
 };
 
 export const AuthContext = createContext<UserContext>({} as UserContext);
@@ -15,8 +16,17 @@ export const AuthContext = createContext<UserContext>({} as UserContext);
 const AuthContextProvider = (props: ChildrenProps) => {
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState<UserAuth>()
+
     const onChangeUser = (user: UserCredential["user"]) => {
         setUser(user);
+    }
+
+    const onDestroySession = () => {
+        auth.signOut()
+            .then(() => {
+                setUser(undefined)
+            })
+            .catch(console.log);
     }
 
     useEffect(() => {
@@ -34,7 +44,7 @@ const AuthContextProvider = (props: ChildrenProps) => {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ user, loading, onChangeUser }}>
+        <AuthContext.Provider value={{ user, loading, onChangeUser, onDestroySession }}>
             {props.children}
         </AuthContext.Provider>
     )

@@ -1,51 +1,59 @@
-import { Typography, Grid, Box, Paper } from "@mui/material";
+import { Typography, Grid, Paper, Box, Badge, Skeleton } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { UserCredential } from "firebase/auth";
 import useAuth from "../../auth/hooks/useAuth";
 import { INote } from "../../common/types";
 
-interface NoteProps {
+interface PaperProps {
     note: INote
 }
+interface NoteProps extends PaperProps {
+    loading: boolean,
+    onSelect: (n: INote) => void
+}
 
-const PaperBox = styled(Box)<NoteProps>(({theme, note}) => ({
+const PaperBox = styled(Paper)<PaperProps>(({theme, note}) => ({
     margin: theme.spacing(1),
+    [theme.breakpoints.down('sm')]: {
+        marginLeft: 0,
+        marginRight: 0
+    },
     padding: theme.spacing(1),
-    height: 120,
+    height: 140,
     backgroundColor: 'white',
     borderRadius: 6,
-    border: `2px solid ${note.color || "#e9e9e9"}`,
+    border: `2px solid ${note.color || "transparent"}`,
     transition: 'all .2s ease-in-out',
     '&: hover': {
         cursor: 'pointer',
-        boxShadow: `0.5px 0.5px 1px 0.5px ${note.color || "#a0a0a0"}`
     }
 }))
 
-const Note = ({ note }: NoteProps) => {
+const Note = ({ note, loading, onSelect }: NoteProps) => {
     const user = useAuth() as UserCredential["user"];
+    const onClick = () => onSelect(note);
     return (
-        <PaperBox note={note}>
+        <PaperBox note={note} onClick={onClick}>
             <Grid container className="h-100">
                 {
                     note.image.url && (
-                        <div className="d-image">
+                        <Box className="d-image" sx={{ margin: 'auto', marginRight: '10px' }}>
                             <img
                                 src={note.image.url}
                                 alt={`Image note ${note.id}`}
                                 width="auto"
                                 height={50}
                             />
-                        </div>
+                        </Box>
                     )
                 }
                 <Grid item xs>
-                    <Typography component="p">
-                        <strong>{note.title}</strong>
-                    </Typography>
                     <Typography component="p" noWrap>
-                        {note.description}
+                        { loading ? <Skeleton variant="text" width={"100%"} /> : <strong>{note.title}</strong> }
                     </Typography>
+                    <Box component="p" overflow="hidden" height={70}>
+                        {loading ? <Skeleton variant="text" width={"100%"} /> : note.description}
+                    </Box>
                 </Grid>
                 {
                     // Show email if is not a note from yourself
@@ -55,7 +63,7 @@ const Note = ({ note }: NoteProps) => {
                                 {note.owner?.email}
                             </Typography>
                         </Grid>
-                    : null
+                        : null
                 }
             </Grid>
         </PaperBox>

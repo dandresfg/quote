@@ -6,7 +6,7 @@ import FirebaseLogo from '../../assets/firebase-logo.png';
 
 const Header = () => {
     return (
-        <Box py={5} component="header">
+        <Box py={3} component="header">
             <Grid item container alignItems="center" justifyContent="center">
                 <Box mx={2}><img src={GoogleKeepLogo} alt="Google Keep" width={35} /></Box>
                 <Box>+</Box>
